@@ -15,7 +15,10 @@ export function useCollection(col, order = 'createdAt') {
     const unsub = onSnapshot(q, (snap) => {
       setDocs(snap.docs.map(d => ({ id: d.id, ...d.data() })))
       setLoading(false)
-    }, () => setLoading(false))
+    }, (err) => {
+      console.error('Firestore error:', err.code, err.message)
+      setLoading(false)
+    })
     return unsub
   }, [user, col, order])
 
