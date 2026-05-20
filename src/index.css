@@ -2,7 +2,7 @@
 
 /* ── THEME VARIABLES ─────────────────────────────── */
 :root {
-  --sidebar-width: 240px;
+  --sidebar-width: 260px;
   --topbar-height: 56px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -409,12 +409,94 @@ button { font-family: var(--font); }
 
 /* ── MOBILE ──────────────────────────────────────── */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
+  /* Layout */
+  .sidebar { transform: translateX(-100%); box-shadow: none; }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
   .main-content { margin-left: 0; }
-  .menu-btn { display: block; }
-  .page-content { padding: 16px; }
-  .dashboard-sections { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
+  .menu-btn { display: flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; }
+
+  /* Topbar */
+  .topbar { padding: 0 14px; }
+
+  /* Page content */
+  .page-content { padding: 16px 14px; }
+
+  /* Page header — stack if title is long */
+  .page-header { flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .page-title { font-size: 19px; }
+
+  /* Grids — always single column on mobile */
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+
+  /* Stats grid — 2 columns on mobile */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 18px; }
+  .stat-value { font-size: 20px; }
+
+  /* Dashboard */
+  .dashboard-sections { grid-template-columns: 1fr; gap: 12px; }
+  .dashboard-greeting { font-size: 18px; }
+  .dashboard-date { margin-bottom: 18px; }
+
+  /* Expense summary — 2 cols */
+  .expense-summary { grid-template-columns: repeat(2, 1fr); }
+
+  /* Subscription banner — stack */
+  .sub-banner { flex-direction: column; gap: 12px; padding: 14px 16px; }
+
+  /* Section tools */
+  .section-tools { gap: 8px; }
+  .search-input { min-width: 0; }
+  .filter-select { width: 100%; }
+
+  /* Forms */
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Modal — full screen on mobile */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal, .modal-lg {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .modal-header { padding: 16px 18px; }
+  .modal-body { padding: 16px 18px; }
+  .modal-footer { padding: 12px 18px; }
+
+  /* Inputs — 16px prevents iOS auto-zoom */
+  .form-input, .form-select, .form-textarea, .search-input, .filter-select {
+    font-size: 16px;
+  }
+
+  /* Cards */
+  .card { padding: 14px; }
+  .card-title { font-size: 14px; }
+
+  /* Card visual (credit cards) */
+  .card-visual { min-height: 80px; padding: 12px 14px; }
+  .card-visual-number { font-size: 13px; letter-spacing: 1.5px; }
+
+  /* Buttons — bigger tap targets */
+  .btn { padding: 10px 16px; min-height: 40px; }
+  .btn-sm { padding: 7px 12px; min-height: 34px; }
+  .btn-icon { padding: 8px; min-width: 34px; min-height: 34px; }
+
+  /* Login */
+  .login-card { padding: 36px 24px; }
+  .login-title { font-size: 24px; }
+
+  /* Dump textarea */
+  .dump-item { padding: 12px; }
+
+  /* Field rows — stack on mobile */
+  .field-row { flex-direction: column; gap: 8px; }
+  .field-row .card-field { flex: none; }
+
+  /* Banking copy-all button */
+  .copy-btn { padding: 5px 10px; font-size: 12px; }
+
+  /* Notes grid */
+  .note-content { -webkit-line-clamp: 3; }
 }
