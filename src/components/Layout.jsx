@@ -23,9 +23,10 @@ const NAV = [
     { to: '/books',  icon: '📚', label: 'Books' },
   ]},
   { group: 'WORKSPACE', items: [
-    { to: '/notes',     icon: '📝', label: 'Notes' },
-    { to: '/dump',      icon: '📦', label: 'Random Dump' },
-    { to: '/passwords', icon: '🔑', label: 'Passwords' },
+    { to: '/notes',      icon: '📝', label: 'Notes' },
+    { to: '/dump',       icon: '📦', label: 'Random Dump' },
+    { to: '/passwords',  icon: '🔑', label: 'Passwords' },
+    { to: '/documents',  icon: '📂', label: 'Documents' },
   ]},
 ]
 

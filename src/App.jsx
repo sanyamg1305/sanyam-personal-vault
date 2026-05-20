@@ -16,6 +16,7 @@ import Notes from './pages/Notes'
 import Dump from './pages/Dump'
 import Contacts from './pages/Contacts'
 import Passwords from './pages/Passwords'
+import Documents from './pages/Documents'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -44,6 +45,7 @@ function AppRoutes() {
         <Route path="dump" element={<Dump />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="passwords" element={<Passwords />} />
+        <Route path="documents" element={<Documents />} />
       </Route>
     </Routes>
   )
