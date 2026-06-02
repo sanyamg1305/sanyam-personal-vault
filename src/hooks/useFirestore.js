@@ -1,25 +1,41 @@
-import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { db } from '../firebase/config'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 export function useFirestore(col) {
   const { user } = useAuth()
 
-  const addDocument = (data) =>
-    addDoc(collection(db, 'users', user.uid, col), {
-      ...data,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    })
+  // Strip internal fields before storing in data JSONB
+  function toData(form) {
+    const { id, createdAt, updatedAt, ...rest } = form
+    return rest
+  }
 
-  const updateDocument = (id, data) =>
-    updateDoc(doc(db, 'users', user.uid, col, id), {
-      ...data,
-      updatedAt: serverTimestamp(),
+  const addDocument = async (form) => {
+    const { error } = await supabase.from('vault_items').insert({
+      user_id: user.uid,
+      collection: col,
+      data: toData(form),
     })
+    if (error) throw error
+  }
 
-  const deleteDocument = (id) =>
-    deleteDoc(doc(db, 'users', user.uid, col, id))
+  const updateDocument = async (id, form) => {
+    const { error } = await supabase
+      .from('vault_items')
+      .update({ data: toData(form) })
+      .eq('id', id)
+      .eq('user_id', user.uid)
+    if (error) throw error
+  }
+
+  const deleteDocument = async (id) => {
+    const { error } = await supabase
+      .from('vault_items')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.uid)
+    if (error) throw error
+  }
 
   return { addDocument, updateDocument, deleteDocument }
 }

@@ -11,13 +11,10 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setError('')
     setLoading(true)
-    try {
-      await signInWithGoogle()
-    } catch (e) {
-      setError('Sign-in failed. Make sure pop-ups are allowed.')
-    } finally {
-      setLoading(false)
-    }
+    // Supabase OAuth redirects — no popup needed
+    const { error } = await signInWithGoogle()
+    if (error) { setError('Sign-in failed: ' + error.message); setLoading(false) }
+    // On success, browser redirects to Google then back — no further action needed
   }
 
   return (

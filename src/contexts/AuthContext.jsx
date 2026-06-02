@@ -1,23 +1,45 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { auth, googleProvider } from '../firebase/config'
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
+import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext()
+
+// Normalize Supabase user to same shape the app expects
+function normalize(u) {
+  if (!u) return null
+  return {
+    ...u,
+    uid: u.id,
+    displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0],
+    photoURL: u.user_metadata?.avatar_url || u.user_metadata?.picture || null,
+    email: u.email,
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(normalize(session?.user ?? null))
       setLoading(false)
     })
-    return unsub
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(normalize(session?.user ?? null))
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  const signInWithGoogle = () => signInWithPopup(auth, googleProvider)
-  const logout = () => signOut(auth)
+  const signInWithGoogle = () =>
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    })
+
+  const logout = () => supabase.auth.signOut()
 
   return (
     <AuthContext.Provider value={{ user, loading, signInWithGoogle, logout }}>
