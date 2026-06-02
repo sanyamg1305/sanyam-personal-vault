@@ -3,18 +3,40 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
 
 export default function LoginPage() {
-  const { signInWithGoogle } = useAuth()
+  const { signIn, signUp } = useAuth()
   const { theme, toggleTheme } = useTheme()
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleGoogle = async () => {
+  const [mode, setMode] = useState('signin') // 'signin' | 'signup'
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [showPw, setShowPw] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setError('')
+    setSuccess('')
+
+    if (!email || !password) { setError('Please fill in all fields.'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
+
     setLoading(true)
-    // Supabase OAuth redirects — no popup needed
-    const { error } = await signInWithGoogle()
-    if (error) { setError('Sign-in failed: ' + error.message); setLoading(false) }
-    // On success, browser redirects to Google then back — no further action needed
+
+    if (mode === 'signup') {
+      const { error } = await signUp(email, password)
+      if (error) { setError(error.message); setLoading(false); return }
+      setSuccess('Account created! You can now sign in.')
+      setMode('signin')
+    } else {
+      const { error } = await signIn(email, password)
+      if (error) { setError('Incorrect email or password.'); setLoading(false); return }
+      // Auth state change will redirect automatically
+    }
+
+    setLoading(false)
   }
 
   return (
@@ -22,22 +44,66 @@ export default function LoginPage() {
       <button className="theme-toggle login-theme-toggle" onClick={toggleTheme}>
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
+
       <div className="login-card">
         <div className="login-icon">🔐</div>
         <h1 className="login-title">MyVault</h1>
         <p className="login-subtitle">
-          Your personal vault for banking details, cards, expenses, notes, and everything else.
+          {mode === 'signin' ? 'Welcome back. Sign in to your vault.' : 'Create your personal vault.'}
         </p>
-        {error && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 16 }}>{error}</p>}
-        <button className="btn-google" onClick={handleGoogle} disabled={loading}>
-          <svg width="20" height="20" viewBox="0 0 48 48">
-            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-          </svg>
-          {loading ? 'Signing in…' : 'Continue with Google'}
-        </button>
+
+        <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              className="form-input"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <div className="input-with-toggle">
+              <input
+                className="form-input"
+                type={showPw ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              />
+              <button type="button" className="input-toggle-btn" onClick={() => setShowPw(v => !v)}>
+                {showPw ? '🙈' : '👁'}
+              </button>
+            </div>
+          </div>
+
+          {error && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>{error}</p>}
+          {success && <p style={{ color: 'var(--success)', fontSize: 13, marginBottom: 12 }}>{success}</p>}
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{ width: '100%', justifyContent: 'center', padding: '11px', fontSize: 15, marginBottom: 16 }}
+          >
+            {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+
+        <p style={{ fontSize: 13, color: 'var(--text-3)', textAlign: 'center' }}>
+          {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
+          <button
+            onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); setSuccess('') }}
+            style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 13, fontWeight: 600, padding: 0 }}
+          >
+            {mode === 'signin' ? 'Sign Up' : 'Sign In'}
+          </button>
+        </p>
       </div>
     </div>
   )

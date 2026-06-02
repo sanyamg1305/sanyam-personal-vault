@@ -3,14 +3,13 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext()
 
-// Normalize Supabase user to same shape the app expects
 function normalize(u) {
   if (!u) return null
   return {
     ...u,
     uid: u.id,
-    displayName: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0],
-    photoURL: u.user_metadata?.avatar_url || u.user_metadata?.picture || null,
+    displayName: u.user_metadata?.full_name || u.email?.split('@')[0],
+    photoURL: null,
     email: u.email,
   }
 }
@@ -33,16 +32,16 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signInWithGoogle = () =>
-    supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    })
+  const signUp = (email, password) =>
+    supabase.auth.signUp({ email, password })
+
+  const signIn = (email, password) =>
+    supabase.auth.signInWithPassword({ email, password })
 
   const logout = () => supabase.auth.signOut()
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, logout }}>
       {children}
     </AuthContext.Provider>
   )
